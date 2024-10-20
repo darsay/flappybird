@@ -4,7 +4,7 @@ class FlappyBird {
     this.ctx = ctx;
     this.x = x;
     this.y = y;
-    this.jumpImpulse = 70;
+    this.jumpImpulse = 10;
     this.vy = 3;
 
     this.sprite = new Image();
@@ -22,32 +22,66 @@ class FlappyBird {
     }
 
     this.drawCount = 0;
+    this.wasJumping = false;
   }
 
   onKeyEvent(event) {
     const isJumping = event.type === 'keydown';
+
     switch (event.keyCode) {
       case KEY_UP:
-        // iteration 2: jump! if necessary =D
+        if(isJumping && !this.wasJumping) {
+          this.vy = -this.jumpImpulse;
+          this.wasJumping = true
+          setTimeout(() => {
+            this.vy = 3;
+          }, 100);
+        } else if (!isJumping) this.wasJumping = false;
     }
   }
 
   draw() {
     // draw sprite
-    
+    this.ctx.drawImage(this.sprite,
+      this.sprite.horizontalFrameIndex * this.width,
+      this.sprite.verticalFrameIndex * this.height,
+      this.width,
+      this.height,
+      this.x,
+      this.y,
+      this.width,
+      this.height
+    )
     // animate sprite
     this.animate();
   }
 
   animate() {
     // iteration 2: configure frame animation
+
+    this.drawCount ++;
+
+    if(this.drawCount > 10) {
+      this.drawCount = 0;
+      this.sprite.horizontalFrameIndex ++;
+
+      if (this.sprite.horizontalFrameIndex >= this.sprite.horizontalFrames) {
+        this.sprite.horizontalFrameIndex = 0;
+      }
+    }
   }
 
   move() {
     // iteration 2: move the y
+    this.y  += this.vy;
+
   }
 
   collides(element) {
     // iteration 3: check collisions (true|false)
+    return this.x < element.x + element.width &&
+      this.x + this.width > element.x &&
+      this.y < element.y + element.height &&
+      this.y + this.height > element.y;
   }
 }
